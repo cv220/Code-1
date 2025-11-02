@@ -26,6 +26,8 @@ class LinearSystemApp(tk.Tk):
         ttk.Label(control_frame, text="System size (n):").grid(column=0, row=0, sticky="w")
         size_entry = ttk.Entry(control_frame, width=5, textvariable=self._size_var)
         size_entry.grid(column=1, row=0, padx=(4, 12))
+        size_entry.bind("<Return>", self._on_generate_grid_event)
+        size_entry.bind("<KP_Enter>", self._on_generate_grid_event)
 
         generate_button = ttk.Button(control_frame, text="Generate Grid", command=self.generate_grid)
         generate_button.grid(column=2, row=0)
@@ -82,6 +84,7 @@ class LinearSystemApp(tk.Tk):
             for j in range(size):
                 entry = ttk.Entry(self.grid_frame, width=8, justify="center")
                 entry.grid(column=j, row=i, padx=2, pady=2)
+                self._bind_entry_navigation(entry, i, j, is_rhs=False)
                 row_entries.append(entry)
             self.coeff_entries.append(row_entries)
 
@@ -90,7 +93,11 @@ class LinearSystemApp(tk.Tk):
 
             rhs_entry = ttk.Entry(self.grid_frame, width=8, justify="center")
             rhs_entry.grid(column=size + 1, row=i, padx=2, pady=2)
+            self._bind_entry_navigation(rhs_entry, i, size, is_rhs=True)
             self.rhs_entries.append(rhs_entry)
+
+        if self.coeff_entries:
+            self.coeff_entries[0][0].focus_set()
 
     def _on_solve(self):
         coefficients = []
@@ -123,6 +130,69 @@ class LinearSystemApp(tk.Tk):
             entry.delete(0, tk.END)
         self.solution_var.set("")
         self._latest_solution = []
+
+    def _on_generate_grid_event(self, event):
+        self.generate_grid()
+        return "break"
+
+    def _bind_entry_navigation(self, entry, row, col, *, is_rhs: bool):
+        entry.bind("<Up>", lambda event, r=row, c=col, rhs=is_rhs: self._move_focus(r, c, rhs, "Up"))
+        entry.bind("<Down>", lambda event, r=row, c=col, rhs=is_rhs: self._move_focus(r, c, rhs, "Down"))
+        entry.bind("<Left>", lambda event, r=row, c=col, rhs=is_rhs: self._move_focus(r, c, rhs, "Left"))
+        entry.bind("<Right>", lambda event, r=row, c=col, rhs=is_rhs: self._move_focus(r, c, rhs, "Right"))
+
+    def _move_focus(self, row: int, col: int, is_rhs: bool, direction: str):
+        size = len(self.coeff_entries)
+        if size == 0:
+            return "break"
+
+        new_row = row
+        new_col = col
+        new_is_rhs = is_rhs
+
+        if direction == "Up":
+            if row > 0:
+                new_row = row - 1
+        elif direction == "Down":
+            if row < size - 1:
+                new_row = row + 1
+        elif direction == "Left":
+            if is_rhs:
+                new_is_rhs = False
+                new_col = size - 1
+            elif col > 0:
+                new_col = col - 1
+            elif row > 0:
+                new_row = row - 1
+                new_is_rhs = True
+                new_col = size
+            else:
+                return "break"
+        elif direction == "Right":
+            if not is_rhs:
+                if col < size - 1:
+                    new_col = col + 1
+                else:
+                    new_is_rhs = True
+                    new_col = size
+            else:
+                if row < size - 1:
+                    new_row = row + 1
+                    new_is_rhs = False
+                    new_col = 0
+                else:
+                    return "break"
+
+        self._focus_cell(new_row, new_col, new_is_rhs)
+        return "break"
+
+    def _focus_cell(self, row: int, col: int, is_rhs: bool):
+        if is_rhs:
+            target = self.rhs_entries[row]
+        else:
+            target = self.coeff_entries[row][col]
+        target.focus_set()
+        target.icursor(tk.END)
 
     def _on_load_coefficients(self):
         path = filedialog.askopenfilename(title="Select coefficient matrix file", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
