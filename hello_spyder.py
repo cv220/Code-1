@@ -6,124 +6,126 @@ Created on Fri Oct 31 09:17:40 2025
 """
 
 #_______________________________________________
-import math #pulls a predefined extensive directory of python code
-import numpy as np # numerical python: library of scientific computing functions
+import math  # pulls a predefined extensive directory of python code
+import numpy as np  # numerical python: library of scientific computing functions
 #_______________________________________________
 #_______________________________________________
 def main():
-    
-    my_data_mgmt = Input_Mgmt( float )
-    my_system    = Lin_Solve()
-    my_output    = Output_Mgmt()
-    
-    my_data_mgmt.read_from_file() #dot notation referred to example organization.department()
-    my_data_mgmt.file_conversion()
-    
-    print( my_data_mgmt.matrix )
-    
-    my_system.a = my_data_mgmt.matrix #the matrix a from my_system pulls the data from my_data_mgmt
-    
-    my_data_mgmt.read_from_file()
-    my_data_mgmt.file_conversion()
-    
-    print( my_data_mgmt.matrix )
-    
-    my_system.b = my_data_mgmt.matrix
-    
-    #my_system.test_data()
-    
+
+    my_data_mgmt = Input_Mgmt(float)
+    my_system = Lin_Solve()
+    my_output = Output_Mgmt()
+
+    size = my_data_mgmt.ask_dimension()
+
+    my_system.a = my_data_mgmt.read_matrix(size, "coefficient")
+    my_system.b = my_data_mgmt.read_vector(size, "right-hand side")
+
     my_system.solve_lin_system()
-    #print( my_system.x )
-    
+
     print()
-    
+
     print("Here is the system solution: ")
     print()
-    
-    my_output.display_matrix( my_system.a )
-    my_output.display_array( my_system.b )
-    my_output.display_array( my_system.x )
-        
-    my_output.store_to_file( my_system.x )
-    
-    
+
+    my_output.display_matrix(my_system.a)
+    my_output.display_array(my_system.b)
+    my_output.display_array(my_system.x)
+
+    my_output.store_to_file(my_system.x)
+
+
     return
 
 
 #______________________________________________
 #______________________________________________
 class Input_Mgmt( object ):
-    
+
     def __init__( self, funct ):
-        
+
         self.funct  = funct
-        self.matrix = [] #need matrix, do not need size right away, it will be initialized
-        
-        
+
+
 #______________________________________________
     #______________________________________________
-    def read_from_file( self ):
-     
-        file_name = input("Enter the file name: " )
-        
-        file_name = file_name + ".txt"
-        
-        try:
-            external_file = open( file_name, "r" ) # r is keyword for read
-            
-        except:
-            print( "sorry, I could not find that file")
-            return( -1 ) #returns to file_data_entry
-        
-        mtrx = [] #matrix that is empty so we can pull info into it
-        
-        go_on = True
-        
-        while go_on == True:
-            
-            row = external_file.readline() # .readline and the parentheses confirm it is a function
-            
-            if row == "":
-                
-                go_on = False
-                
+    def ask_dimension( self ):
+
+        while True:
+
+            try:
+
+                dimension = int( input( "Enter the size of the square matrix (n): " ) )
+
+            except ValueError:
+
+                print( "Please enter an integer value for n." )
+                continue
+
+            if dimension <= 0:
+
+                print( "Please enter a positive integer." )
+
             else:
-                
-                row = row.rstrip( "\n")
-                row = row.split() # splits rows from a single string into columns
-                
-                
-                mtrx.append( row )
-                
-            
-        external_file.close()
-        
-        self.matrix = mtrx
-        
-        
-        return
+
+                return dimension
+
+
     #_______________________________________________
-    
+    def read_matrix( self, size, description ):
+
+        matrix = []
+
+        for i in range( size ):
+
+            while True:
+
+                row_input = input( f"Enter row { i + 1 } of the { description } matrix (space-separated { size } values): " )
+                values = row_input.split()
+
+                if len( values ) != size:
+
+                    print( f"Row must contain exactly { size } values." )
+                    continue
+
+                try:
+
+                    row = [ self.funct( value ) for value in values ]
+
+                except ValueError:
+
+                    print( "Please enter numeric values only." )
+                    continue
+
+                matrix.append( row )
+                break
+
+        return matrix
+
+
     #_______________________________________________
-    def file_conversion( self ): #converts string file to integers ^^changes read_from_file
-        
-        funct = self.funct
-        mtrx = self.matrix
-    
-        rows     = len( mtrx )    # number of rows
-        columns = len( mtrx[0] ) # number of columns
-        
-        for i in range( rows ):
-            
-            for j in range( columns ):
-                
-                mtrx[ i ][ j ] = funct(mtrx[ i ][ j ]) #now integers so no more ' ' single quotes
-        
-        self.matrix = mtrx
-        
-        
-        return
-    #______________________________________________
+    def read_vector( self, size, description ):
+
+        while True:
+
+            vector_input = input( f"Enter the { description } vector (space-separated { size } values): " )
+            values = vector_input.split()
+
+            if len( values ) != size:
+
+                print( f"The vector must contain exactly { size } values." )
+                continue
+
+            try:
+
+                vector = [ self.funct( value ) for value in values ]
+
+            except ValueError:
+
+                print( "Please enter numeric values only." )
+                continue
+
+            return vector
 #______________________________________________
 class Lin_Solve( object ):
     
