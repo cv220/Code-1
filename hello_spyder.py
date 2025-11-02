@@ -7,14 +7,14 @@ Created on Fri Oct 31 09:17:40 2025
 
 #_______________________________________________
 import math  # pulls a predefined extensive directory of python code
-import numpy as np  # numerical python: library of scientific computing functions
+
+from linear_solver import solve_linear_system
 #_______________________________________________
 #_______________________________________________
-def main():
+def run_console_session():
 
     my_data_mgmt = Input_Mgmt(float)
     my_system = Lin_Solve()
-    my_output = Output_Mgmt()
 
     size = my_data_mgmt.ask_dimension()
 
@@ -23,16 +23,25 @@ def main():
 
     my_system.solve_lin_system()
 
+    return my_system.a, my_system.b, my_system.x
+
+
+def main():
+
+    my_output = Output_Mgmt()
+
+    coefficients, rhs, solution = run_console_session()
+
     print()
 
     print("Here is the system solution: ")
     print()
 
-    my_output.display_matrix(my_system.a)
-    my_output.display_array(my_system.b)
-    my_output.display_array(my_system.x)
+    my_output.display_matrix(coefficients)
+    my_output.display_array(rhs)
+    my_output.display_array(solution)
 
-    my_output.store_to_file(my_system.x)
+    my_output.store_to_file(solution)
 
 
     return
@@ -148,11 +157,9 @@ class Lin_Solve( object ):
         
         a = self.a
         b = self.b
-        
-        x = np.linalg.solve( a, b )
-        
-        self.x = x
-        
+
+        self.x = solve_linear_system(a, b)
+
         return
     #_______________________________________________        
     
@@ -241,5 +248,6 @@ class Output_Mgmt( object ):
 
 #______________________________________________
 #______________________________________________
-main()
+if __name__ == "__main__":
+    main()
 #______________________________________________
