@@ -78,27 +78,27 @@ class Input_Mgmt( object ):
 
         for i in range( size ):
 
-            while True:
+            row = []
 
-                row_input = input( f"Enter row { i + 1 } of the { description } matrix (space-separated { size } values): " )
-                values = row_input.split()
+            for j in range( size ):
 
-                if len( values ) != size:
+                while True:
 
-                    print( f"Row must contain exactly { size } values." )
-                    continue
+                    entry = input( f"Enter the { description } matrix entry at row { i + 1 }, column { j + 1 }: " )
 
-                try:
+                    try:
 
-                    row = [ self.funct( value ) for value in values ]
+                        value = self.funct( entry )
 
-                except ValueError:
+                    except ValueError:
 
-                    print( "Please enter numeric values only." )
-                    continue
+                        print( "Please enter a numeric value." )
+                        continue
 
-                matrix.append( row )
-                break
+                    row.append( value )
+                    break
+
+            matrix.append( row )
 
         return matrix
 
@@ -106,26 +106,27 @@ class Input_Mgmt( object ):
     #_______________________________________________
     def read_vector( self, size, description ):
 
-        while True:
+        vector = []
 
-            vector_input = input( f"Enter the { description } vector (space-separated { size } values): " )
-            values = vector_input.split()
+        for i in range( size ):
 
-            if len( values ) != size:
+            while True:
 
-                print( f"The vector must contain exactly { size } values." )
-                continue
+                entry = input( f"Enter the { description } vector entry at position { i + 1 }: " )
 
-            try:
+                try:
 
-                vector = [ self.funct( value ) for value in values ]
+                    value = self.funct( entry )
 
-            except ValueError:
+                except ValueError:
 
-                print( "Please enter numeric values only." )
-                continue
+                    print( "Please enter a numeric value." )
+                    continue
 
-            return vector
+                vector.append( value )
+                break
+
+        return vector
 #______________________________________________
 class Lin_Solve( object ):
     
