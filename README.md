@@ -1,12 +1,12 @@
 # Linear System Tools
 
-This project provides both a console workflow and a Tkinter-based graphical interface for entering and solving square linear systems using NumPy.
+This project provides both a console workflow and a modern PyQt-based graphical interface for entering and solving square linear systems using NumPy.
 
 ## Requirements
 
 - Python 3.11+
 - NumPy
-- Tkinter (ships with standard Python installs on Windows/macOS; install `python3-tk` on many Linux distributions)
+- PyQt5 (`pip install PyQt5`)
 
 ## Console Usage
 
@@ -23,16 +23,16 @@ python hello_spyder.py
 
 ## GUI Usage
 
-Launch the Tkinter application for a paper-style entry grid:
+Launch the PyQt application for a paper-style entry grid:
 
 ```bash
 python ui_app.py
 ```
 
-- Set the desired system size and click **Generate Grid** to refresh the matrix and RHS fields.
+- Set the desired system size with the spin box and click **Generate Grid** (or press Enter) to refresh the table.
 - Type coefficients and RHS entries directly in the grid, then click **Solve** to compute the solution.
-- Use **Load Coefficients** or **Load RHS** to import whitespace-separated values from text files.
-- Choose **Save Solution** to export the most recent solution vector to a file.
+- Use **Load Coefficients…** or **Load RHS…** to import whitespace-separated values from text files.
+- Choose **Save Solution…** to export the most recent solution vector to a file.
 - Click **Clear** to reset all inputs and results.
 
 Both interfaces rely on the shared `linear_solver.solve_linear_system` helper, ensuring consistent results between the console and GUI experiences.
