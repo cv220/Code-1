@@ -1,0 +1,20 @@
+:ClrHome
+:Disp "LINEAR INTERP"
+:Disp "Y=Y1+(X-X1)"
+:Disp "*((Y2-Y1)/(X2-X1))"
+:Input "X1? ",A
+:Input "Y1? ",B
+:Input "X2? ",C
+:Input "Y2? ",D
+:Input "X? ",E
+:C-A→Z
+:If Z=0
+:Then
+:Disp "ERROR: X1=X2"
+:Pause
+:Stop
+:End
+:(D-B)/Z→T
+:B+(E-A)*T→Y
+:Disp "Y=",Y
+:Pause
